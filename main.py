@@ -96,7 +96,10 @@ def config():
 
 @app.route('/ipaddr')
 def ipaddr():
-    return jsonify({"ipaddr": str(request.remote_addr)})
+    ip = str(request.remote_addr)
+    if 'X-Real-IP' in request.headers:
+        ip = request.headers.get("X-Real-IP")
+    return jsonify({"ipaddr": ip})
 
 @app.route('/')
 def hello_world():
