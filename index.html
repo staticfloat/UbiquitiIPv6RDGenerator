@@ -18,10 +18,10 @@
             }
 
             function update_curl_line() {
-                let curl_cmd = "curl -o config.gateway.json -L " + window.location.href + "config.gateway.json?";
                 let params = ["customer_ipv4_lan_addr", "customer_ipv4_wan_addr", "isp_ipv6_prefix"]
                 params = params.map(param => param + "=" + encodeURIComponent(document.getElementById(param).value));
-                document.getElementById("curl_output").innerText = curl_cmd + params.join("&");
+                let curl_cmd = "curl -o config.gateway.json -L '" + window.location.href + "config.gateway.json?" + params.join("&") + "'";
+                document.getElementById("curl_output").innerText = curl_cmd;
             }
 
             function copy_curl_to_clipboard() {
