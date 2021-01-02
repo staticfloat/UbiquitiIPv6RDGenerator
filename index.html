@@ -14,11 +14,19 @@
 
             function fill_provider(elem) {
                 document.getElementById("isp_ipv6_prefix").value = elem.children[0].innerText;
+                document.getElementById("isp_ipv4_gateway_addr").value = elem.children[1].innerText;
                 update_curl_line();
             }
 
             function update_curl_line() {
-                let params = ["customer_ipv4_lan_addr_mask", "customer_ipv4_wan_addr", "isp_ipv6_prefix"]
+                let params = [
+                    "customer_ipv4_lan_addr_mask",
+                    "isp_ipv6_prefix",
+                    "isp_ipv4_gateway_addr",
+                ]
+                if (!should_autodetect_wan_ipv4_addr()) {
+                    params.push("customer_ipv4_wan_addr");
+                }
                 params = params.map(param => param + "=" + encodeURIComponent(document.getElementById(param).value));
                 let curl_cmd = "curl -o config.gateway.json -L '" + window.location.href + "config.gateway.json?" + params.join("&") + "'";
                 document.getElementById("curl_output").innerText = curl_cmd;
@@ -26,6 +34,19 @@
 
             function copy_curl_to_clipboard() {
                 navigator.clipboard.writeText(document.getElementById("curl_output").innerText);
+            }
+
+            function should_autodetect_wan_ipv4_addr() {
+                return document.getElementById("autodetect_ipv4_wan_addr").checked;
+            }
+
+            function update_autodetect() {
+                let autodetect = should_autodetect_wan_ipv4_addr();
+                document.getElementById("customer_ipv4_wan_addr").disabled = autodetect;
+                if (autodetect) {
+                    autofill_ipv4_wan();
+                }
+                update_curl_line();
             }
         </script>
     </head>
@@ -35,9 +56,12 @@
             <label for="customer_ipv4_lan_addr_mask">Customer IPv4 LAN address (with mask):</label>
             <input type="text" name="customer_ipv4_lan_addr_mask" id="customer_ipv4_lan_addr_mask" onkeyup="update_curl_line()" placeholder="192.168.1.1/24"><br/>
             <label for="customer_ipv4_wan_addr">Customer IPv4 WAN address:</label>
-            <input type="text" name="customer_ipv4_wan_addr" id="customer_ipv4_wan_addr" onkeyup="update_curl_line()" placeholder="123.45.67.89"><br/>
+            <input type="text" name="customer_ipv4_wan_addr" id="customer_ipv4_wan_addr" onkeyup="update_curl_line()" placeholder="123.45.67.89">
+            <label for="autodetect_ipv4_wan_addr">Autodetect WAN addr</label><input type="checkbox" id="autodetect_ipv4_wan_addr" onchange="update_autodetect()"><br/>
             <label for="isp_ipv6_prefix">Provider IPv6 prefix (with mask):</label>
             <input type="text" name="isp_ipv6_prefix" id="isp_ipv6_prefix" onkeyup="update_curl_line()" placeholder="2602::/24"><br/>
+            <label for="isp_ipv4_gateway_addr">Provider IPv4 6rd gateway:</label>
+            <input type="text" name="isp_ipv4_gateway_addr" id="isp_ipv4_gateway_addr" onkeyup="update_curl_line()" placeholder="205.171.2.64"><br/>
             <input type="submit" value="Generate config.gateway.json">
         </form>
 
@@ -46,9 +70,9 @@
         </div>
 
         <br/><br/>
-        <h2>Table of known IPv6 provider prefixes:</h2>
+        <h2>Table of known IPv6 provider prefixes/gateways:</h2>
         <ul>
-            <li onclick="fill_provider(this)">Centurylink: <code>2602::/24</code></li>
+            <li onclick="fill_provider(this)">Centurylink: <code>2602::/24</code> &nbsp;-&nbsp; </b><code>205.171.2.64</code></li>
         </ul>
 
         <br/><br/><br/><br/>
