@@ -7,7 +7,7 @@ def calc_customer_ipv6_prefix(customer_ipv4_addr_str, isp_ipv6_prefix_str):
     isp_prefix = ipaddress.ip_network(isp_ipv6_prefix_str)
     customer_ipv4_addr = ipaddress.ip_address(customer_ipv4_addr_str)
     offset = struct.unpack("!I", customer_ipv4_addr.packed)[0] << (96 - isp_prefix.prefixlen)
-    return str(isp_prefix.network_address + offset)
+    return str(isp_prefix.network_address + offset) + "1"
 
 def build_usg_template(customer_ipv4_wan_addr_str, customer_ipv4_lan_addr_mask_str, isp_ipv6_prefix_str = "2602::/24"):
     """
@@ -22,7 +22,7 @@ def build_usg_template(customer_ipv4_wan_addr_str, customer_ipv4_lan_addr_mask_s
                 "eth1": {
                     "address": [
                         customer_ipv4_lan_addr_mask_str,
-                        customer_ipv6_prefix + "::1/64",
+                        customer_ipv6_prefix + "/64",
                     ],
                     "ipv6": {
                         "dup-addr-detect-transmits": "1",
@@ -41,7 +41,7 @@ def build_usg_template(customer_ipv4_wan_addr_str, customer_ipv4_lan_addr_mask_s
                             ],
                             "other-config-flag": "false",
                             "prefix": {
-                                customer_ipv6_prefix + "::1/64": {
+                                customer_ipv6_prefix + "/64": {
                                     "autonomous-flag": "true",
                                     "on-link-flag": "true",
                                     "valid-lifetime": "3600"
@@ -59,7 +59,7 @@ def build_usg_template(customer_ipv4_wan_addr_str, customer_ipv4_lan_addr_mask_s
                     "6rd-default-gw": "::" + customer_ipv4_wan_addr_str,
                     "6rd-prefix": isp_ipv6_prefix_str,
                     "address": [
-                        customer_ipv6_prefix + "::1/24"
+                        customer_ipv6_prefix + "/24"
                     ],
                     "description": "CenturyLink IPv6 6rd tunnel",
                     "encapsulation": "sit",
