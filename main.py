@@ -32,12 +32,13 @@ def build_usg_template(customer_ipv4_wan_addr_str, customer_ipv4_lan_addr_mask_s
                             "managed-flag": "false",
                             "max-interval": "300",
                             "name-server": [
-                                # Google IPv6 DNS
-                                "2001:4860:4860::8888",
-                                "2001:4860:4860::8844",
                                 # Cloudflare IPv6 DNS
                                 "2606:4700:4700::1111",
-                                "2606:4700:4700::1001"
+                                "2606:4700:4700::1001",
+                                # Google IPv6 DNS
+                                "2001:4860:4860::8888",
+                                # Trying to add a 4th here causes an error in radvd
+                                # ("too many addresses in RDNSS section")
                             ],
                             "other-config-flag": "false",
                             "prefix": {
