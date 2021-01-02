@@ -86,8 +86,8 @@ def build_usg_template(customer_ipv4_wan_addr_str, customer_ipv4_lan_addr_str, i
 @app.route('/config.gateway.json')
 def config():
     response = make_response(jsonify(build_usg_template(
-        request.args.get('customer_ipv4_lan_addr'),
         request.args.get('customer_ipv4_wan_addr'),
+        request.args.get('customer_ipv4_lan_addr'),
         request.args.get('isp_ipv6_prefix'),
     )))
     response.headers['Content-Type'] = 'text/json'
