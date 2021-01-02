@@ -88,7 +88,7 @@ def config():
     response = make_response(jsonify(build_usg_template(
         request.args.get('customer_ipv4_lan_addr'),
         request.args.get('customer_ipv4_wan_addr'),
-        request.args.get('isp_ipv6_prefix_str'),
+        request.args.get('isp_ipv6_prefix'),
     )))
     response.headers['Content-Type'] = 'text/json'
     response.headers['Content-Disposition'] = 'attachment; filename=config.gateway.json'

@@ -8,11 +8,24 @@
             function autofill_ipv4_wan() {
                 fetch("ipaddr").then(response => response.json()).then(data => {
                     document.getElementById("customer_ipv4_wan_addr").value = data["ipaddr"];
-                })
+                });
+                update_curl_line();
             }
 
             function fill_provider(elem) {
-                document.getElementById("isp_ipv6_prefix_str").value = elem.innerText;
+                document.getElementById("isp_ipv6_prefix").value = elem.children[0].innerText;
+                update_curl_line();
+            }
+
+            function update_curl_line() {
+                let curl_cmd = "curl -o config.gateway.json -L " + window.location.href + "config.gateway.json?";
+                let params = ["customer_ipv4_lan_addr", "customer_ipv4_wan_addr", "isp_ipv6_prefix"]
+                params = params.map(param => param + "=" + encodeURIComponent(document.getElementById(param).value));
+                document.getElementById("curl_output").innerText = curl_cmd + params.join("&");
+            }
+
+            function copy_curl_to_clipboard() {
+                navigator.clipboard.writeText(document.getElementById("curl_output").innerText);
             }
         </script>
     </head>
@@ -20,17 +33,21 @@
         <h1>Enter your network parameters below:</h1>
         <form action="config.gateway.json" method="get">
             <label for="customer_ipv4_lan_addr">Customer IPv4 LAN address:</label>
-            <input type="text" name="customer_ipv4_lan_addr" id="customer_ipv4_lan_addr" placeholder="192.168.0.1"><br/>
+            <input type="text" name="customer_ipv4_lan_addr" id="customer_ipv4_lan_addr" onkeyup="update_curl_line()" placeholder="192.168.0.1"><br/>
             <label for="customer_ipv4_wan_addr">Customer IPv4 WAN address:</label>
-            <input type="text" name="customer_ipv4_wan_addr" id="customer_ipv4_wan_addr" placeholder="123.45.67.89"><br/>
-            <label for="isp_ipv6_prefix_str">Provider IPv6 prefix (with mask):</label>
-            <input type="text" name="isp_ipv6_prefix_str" id="isp_ipv6_prefix_str" placeholder="2602::/24"><br/>
+            <input type="text" name="customer_ipv4_wan_addr" id="customer_ipv4_wan_addr" onkeyup="update_curl_line()" placeholder="123.45.67.89"><br/>
+            <label for="isp_ipv6_prefix">Provider IPv6 prefix (with mask):</label>
+            <input type="text" name="isp_ipv6_prefix" id="isp_ipv6_prefix" onkeyup="update_curl_line()" placeholder="2602::/24"><br/>
             <input type="submit" value="Generate config.gateway.json">
         </form>
 
+        <div style="width:80%;padding-left:5%;padding-right:5%">
+            <code onclick="copy_curl_to_clipboard()" id="curl_output"></code>
+        </div>
+
         <h2>Table of known IPv6 provider prefixes:</h2>
         <ul>
-            <li>Centurylink: <code onclick="fill_provider(this)">2602::/24</code></li>
+            <li onclick="fill_provider(this)">Centurylink: <code>2602::/24</code></li>
         </ul>
     </body>
 </html>
